@@ -1,5 +1,6 @@
-import { RefObject, useEffect, useRef } from 'react'
+import { MouseEvent, RefObject, useEffect, useRef } from 'react'
 import { getFromLocalStorage, setInLocalStorage, useValue } from 'tldraw'
+import { ExternalLink } from '../../../tla/components/ExternalLink/ExternalLink'
 import { getLocalSessionState } from '../../../tla/utils/local-session-state'
 
 const SCROLL_POSITION_KEY_PREFIX = 'fairy-manual-scroll-position'
@@ -8,6 +9,7 @@ export function FairyManualPanel() {
 	const introductionRef = useRef<HTMLDivElement>(null)
 	const usageRef = useRef<HTMLDivElement>(null)
 	const aboutRef = useRef<HTMLDivElement>(null)
+	const videoRef = useRef<HTMLVideoElement>(null)
 
 	const fairyManualActiveTab = useValue(
 		'fairy manual active tab',
@@ -53,6 +55,18 @@ export function FairyManualPanel() {
 		}
 	}
 
+	// Handle video play/pause on click (desktop only)
+	const handleVideoClick = (e: MouseEvent<HTMLVideoElement>) => {
+		// Only handle mouse clicks (e.detail > 0 indicates mouse click, not touch)
+		if (e.detail > 0 && videoRef.current) {
+			if (videoRef.current.paused) {
+				videoRef.current.play()
+			} else {
+				videoRef.current.pause()
+			}
+		}
+	}
+
 	return (
 		<div className="fairy-manual-content-container">
 			{fairyManualActiveTab === 'introduction' && (
@@ -60,6 +74,26 @@ export function FairyManualPanel() {
 					ref={introductionRef}
 					className="fairy-manual-content"
 					onScroll={createScrollHandler(introductionRef, 'introduction')}
+				>
+					<video
+						ref={videoRef}
+						src="https://cdn.tldraw.com/misc/fairy_intro.mp4"
+						loop
+						muted
+						playsInline
+						autoPlay
+						preload="metadata"
+						className="fairy-manual-video"
+					/>
+					<p>Welcome to fairies in tldraw.</p>
+				</div>
+			)}
+
+			{fairyManualActiveTab === 'usage' && (
+				<div
+					ref={usageRef}
+					onScroll={createScrollHandler(usageRef, 'usage')}
+					className="fairy-manual-content"
 				>
 					<div className="fairy-manual-section">
 						<h3>What are fairies?</h3>
@@ -101,15 +135,6 @@ export function FairyManualPanel() {
 							or continue from where you left off.
 						</p>
 					</div>
-				</div>
-			)}
-
-			{fairyManualActiveTab === 'usage' && (
-				<div
-					ref={usageRef}
-					onScroll={createScrollHandler(usageRef, 'usage')}
-					className="fairy-manual-content"
-				>
 					<div className="fairy-manual-section">
 						<h3>Selecting fairies</h3>
 						<ul>
@@ -124,8 +149,8 @@ export function FairyManualPanel() {
 								<strong>Double-click</strong> a fairy to zoom to its location on the canvas.
 							</li>
 							<li>
-								<strong>Right-click</strong> a fairy to access additional options like renaming,
-								customization, or removing it.
+								<strong>Right-click</strong> a fairy to access additional actions like summoning,
+								following, or putting the fairy to sleep.
 							</li>
 						</ul>
 					</div>
@@ -139,7 +164,6 @@ export function FairyManualPanel() {
 						<ul>
 							<li>Ask it to create shapes, diagrams, or drawings</li>
 							<li>Request edits to existing content on the canvas</li>
-							<li>Give it a specific area to work in by selecting shapes first</li>
 							<li>
 								The fairy will create tasks for itself and work through them until your request is
 								complete
@@ -147,8 +171,8 @@ export function FairyManualPanel() {
 						</ul>
 						<p>
 							<strong>Tips:</strong> Be specific about what you want. You can reference shapes by
-							their position, color, or type. The fairy can see what&apos;s on the canvas and will
-							work relative to your current viewport.
+							their position, color, or type. The fairy can see what&apos;s on the canvas in their
+							surrounding area.
 						</p>
 					</div>
 
@@ -169,14 +193,6 @@ export function FairyManualPanel() {
 						<h3>Managing fairies</h3>
 						<ul>
 							<li>
-								<strong>Add fairies:</strong> Click the plus icon in the sidebar to create new
-								fairies
-							</li>
-							<li>
-								<strong>Customize:</strong> Right-click a fairy to change its name, appearance, or
-								astrological sign
-							</li>
-							<li>
 								<strong>Move fairies:</strong> Drag fairies around the canvas to reposition them
 							</li>
 							<li>
@@ -184,7 +200,7 @@ export function FairyManualPanel() {
 								sleep
 							</li>
 							<li>
-								<strong>Reset chat:</strong> Start fresh by resetting a fairy&apos;s conversation
+								<strong>Clear chat:</strong> Start fresh by clearing a fairy&apos;s conversation
 								history
 							</li>
 							<li>
@@ -230,10 +246,6 @@ export function FairyManualPanel() {
 								you want, where you want it, and any specific requirements.
 							</li>
 							<li>
-								<strong>Use selection:</strong> Select shapes on the canvas before giving
-								instructions to help fairies understand the context.
-							</li>
-							<li>
 								<strong>Break down large tasks:</strong> For complex requests, consider using
 								multiple fairies or breaking the work into smaller steps.
 							</li>
@@ -265,8 +277,7 @@ export function FairyManualPanel() {
 							</li>
 							<li>
 								<strong>Can&apos;t stop a fairy:</strong> If a fairy is working with others, you
-								need to cancel the entire team. Solo fairies can be interrupted by sending a new
-								message.
+								need to cancel the entire team. Fairies can be interrupted by sending a new message.
 							</li>
 							<li>
 								<strong>Fairy stuck waiting:</strong> Check the task list to see if work is in
@@ -290,17 +301,29 @@ export function FairyManualPanel() {
 					<div className="fairy-manual-section">
 						<h3>About fairies</h3>
 						<p>
-							Fairies are an experimental feature that brings AI collaboration directly into your
-							tldraw canvas. They combine natural language interaction with visual awareness to help
-							you create and iterate on your work.
+							Fairies are a temporary feature that will be removed on January 1st, 2026. Perhaps
+							they will return again someday.
+						</p>
+					</div>
+
+					<div className="fairy-manual-section">
+						<h3>Developers</h3>
+						<p>
+							Are you a developer? Would you like to build something like this for your product?
+							Check out the <ExternalLink to="https://tldraw.dev">tldraw SDK</ExternalLink> to get
+							started.
 						</p>
 					</div>
 
 					<div className="fairy-manual-section">
 						<h3>Feedback and support</h3>
 						<p>
-							Fairies are currently in active development. If you encounter issues or have
-							suggestions for improvements, please let us know through the feedback channels.
+							To give feedback or report issues, please chat with us on{' '}
+							<ExternalLink to="https://discord.tldraw.com/?utm_source=dotcom&utm_medium=organic&utm_campaign=dotcom-feedback">
+								Discord
+							</ExternalLink>{' '}
+							or submit an issue on{' '}
+							<ExternalLink to="https://github.com/tldraw/tldraw/issues">GitHub</ExternalLink>.
 						</p>
 					</div>
 				</div>

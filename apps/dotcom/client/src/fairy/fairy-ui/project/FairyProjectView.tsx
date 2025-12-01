@@ -178,6 +178,14 @@ Make sure to give the approximate locations of the work to be done, if relevant,
 
 			if (fairyApp) {
 				fairyApp.projects.addProject(newProject)
+
+				// Select all fairies in the newly created project
+				const allAgents = fairyApp.agents.getAgents()
+				const projectMemberIds = new Set(newProject.members.map((member) => member.id))
+				allAgents.forEach((agent) => {
+					const shouldSelect = projectMemberIds.has(agent.id)
+					agent.updateEntity((f) => (f ? { ...f, isSelected: shouldSelect } : f))
+				})
 			}
 
 			// Set leader as orchestrator
@@ -189,6 +197,17 @@ Make sure to give the approximate locations of the work to be done, if relevant,
 			// Set followers as standing by
 			followerAgents.forEach((agent) => {
 				agent.interrupt({ mode: 'standing-by', input: null })
+			})
+
+			// Summon all fairies to the orchestrator
+			// Leader (orchestrator) at center
+			leaderAgent.position.summon()
+
+			// Followers positioned around the orchestrator
+			followerAgents.forEach((agent, index) => {
+				// Position followers in a horizontal line, offset from the orchestrator
+				const offset = { x: (index + 1) * 120, y: 0 }
+				agent.position.summon(offset)
 			})
 
 			// Send the prompt to the leader
@@ -309,7 +328,7 @@ Do NOT start a completely new project. Respond with a message action first expla
 	// Dynamic placeholder based on project state
 	const placeholder = isPreProject
 		? instructGroupPlaceholder
-		: `Speak to ${orchestratorName.split(' ')[0]}...`
+		: `Speak to ${orchestratorName?.split(' ')[0] ?? ''}...`
 
 	// Empty state
 	if (agents.length === 0) {
